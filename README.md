@@ -1,31 +1,32 @@
-# fedora-bootc-rpi5
+# fedora-bootc-pi
 
-Headless Fedora bootc system optimized for ARM64 Raspberry Pi 5 with Tailscale VPN and WiFi management.
+Headless Fedora bootc system optimized for ARM64 Raspberry Pi 4/5 with Tailscale VPN and WiFi management, based on Fedora Hummingbird.
 
 ## Overview
 
-This project creates a bootc-based headless system that automatically configures networking via WiFi and Tailscale VPN. The system includes:
+This project creates a bootc-based headless system that automatically configures networking via WiFi and Tailscale VPN. Built on **Fedora Hummingbird** (zero-CVE target, ARK kernel, read-only root) for enhanced security. The system includes:
 
 - Headless operation (SSH access only)
 - Automatic WiFi configuration via kickstart
 - Tailscale VPN integration
-- ARM64 optimized for Raspberry Pi 5
+- ARM64 optimized for Raspberry Pi 4/5
 - Node Exporter monitoring
 - Remote management capabilities
+- Zero-CVE base image (Hummingbird)
 
 ## Features
 
 - **Headless Operation**: No GUI, SSH access only
 - **WiFi Configuration**: Automatic setup of multiple WiFi networks via kickstart
 - **Tailscale VPN**: Secure remote access and networking
-- **ARM64 Optimized**: Built specifically for Raspberry Pi 5
+- **ARM64 Optimized**: Built specifically for Raspberry Pi 4/5
 - **Node Exporter Monitoring**: Built-in system metrics collection via Node Exporter
 - **Network Management**: NetworkManager for robust network handling
 - **Container Support**: Podman for containerized workloads
 
 ## Hardware Requirements
 
-- Raspberry Pi 5 (ARM64)
+- Raspberry Pi 4/5 (ARM64)
 - MicroSD card (32GB+ recommended)
 - WiFi connectivity (onboard WiFi supported)
 - Ethernet connection (optional, for initial setup)
@@ -62,7 +63,7 @@ The system supports configuring multiple WiFi networks during installation. Set 
 
 The container image is automatically built and pushed to Quay.io via GitHub Actions on ARM64 runners when you push to main or create releases.
 
-### Create Raspberry Pi 5 Images Locally (with Secret Injection)
+### Create Raspberry Pi 4/5 Images Locally (with Secret Injection)
 
 **Prerequisites**: Set up your environment variables with secrets:
 
@@ -77,7 +78,7 @@ export WIFI_SSID_2=guest-network
 export WIFI_PSK_2=guest-password
 ```
 
-**Create Raspberry Pi 5 disk image:**
+**Create Raspberry Pi 4/5 disk image:**
 ```shell
 make rpi5-img
 ```
@@ -99,14 +100,14 @@ These commands use bootc image builder locally to create images with your secret
 ### SD Card Installation
 
 1. Flash the generated image to a microSD card
-2. Insert into Raspberry Pi 5
+2. Insert into Raspberry Pi 4/5
 3. Boot and wait for WiFi/Tailscale configuration
 4. SSH access will be available via configured networks
 
 ### USB Boot Installation
 
 1. Create bootable USB with ISO
-2. Boot Raspberry Pi 5 from USB
+2. Boot Raspberry Pi 4/5 from USB
 3. Follow installation prompts
 4. System will reboot with configured networking
 
@@ -189,7 +190,7 @@ The following secrets need to be configured in your GitHub repository:
 
 ## Notes
 
-1. **ARM64 Only**: This system is built specifically for ARM64 Raspberry Pi 5
+1. **ARM64 Only**: This system is built specifically for ARM64 Raspberry Pi 4/5
 2. **Headless**: No GUI components - SSH access required for administration
 3. **Network Dependent**: Ensure WiFi credentials are correct for remote access
 4. **Monitoring**: Grafana dashboard provides comprehensive system monitoring

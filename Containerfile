@@ -1,7 +1,8 @@
-FROM quay.io/fedora/fedora-bootc:42
+FROM quay.io/hummingbird-community/bootc-os:latest
 
-# Install packages for headless ARM64 Raspberry Pi 5 system
-# Note: targeting ARM64 architecture for Raspberry Pi 5
+# Install packages for headless ARM64 Raspberry Pi system
+# Note: targeting ARM64 architecture for Raspberry Pi 4/5
+# Base: Fedora Hummingbird (zero-CVE target, ARK kernel, read-only root)
 
 # Add Tailscale repository
 RUN curl -fsSL https://pkgs.tailscale.com/stable/fedora/tailscale.repo -o /etc/yum.repos.d/tailscale.repo
