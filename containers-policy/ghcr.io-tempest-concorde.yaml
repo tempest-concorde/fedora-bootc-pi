@@ -1,0 +1,3 @@
+docker:
+  ghcr.io/tempest-concorde:
+    use-sigstore-attachments: true

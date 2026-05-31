@@ -55,5 +55,12 @@ RUN chmod +x /usr/local/bin/wifi-setup.sh && \
     systemctl enable sshd && \
     systemctl enable NetworkManager
 
+# Bake in containers-policy for update stream lockdown
+RUN mkdir -p /usr/share/pki/sigstore /etc/containers/registries.d
+COPY containers-policy/cosign.pub /usr/share/pki/sigstore/cosign.pub
+COPY containers-policy/ghcr.io-tempest-concorde.yaml /etc/containers/registries.d/ghcr.io-tempest-concorde.yaml
+COPY containers-policy/policy.json /etc/containers/policy.json
+RUN chmod 0444 /etc/containers/policy.json /etc/containers/registries.d/ghcr.io-tempest-concorde.yaml
+
 # Run bootc container lint
 RUN bootc container lint
