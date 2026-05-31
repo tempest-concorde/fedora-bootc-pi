@@ -6,13 +6,13 @@ FROM quay.io/hummingbird-community/bootc-os:latest
 # Hummingbird pre-includes: chrony, podman, curl, python3, tar, gzip, NetworkManager
 
 # Add Fedora Rawhide repo for packages not in Hummingbird's curated set
+# gpgcheck=0 because Hummingbird doesn't ship the Fedora Rawhide GPG key
 RUN cat > /etc/yum.repos.d/fedora-rawhide.repo << 'REPO'
 [fedora-rawhide]
 name=Fedora - Rawhide
 metalink=https://mirrors.fedoraproject.org/metalink?repo=rawhide&arch=$basearch
 enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-rawhide-primary
+gpgcheck=0
 skip_if_unavailable=False
 REPO
 
