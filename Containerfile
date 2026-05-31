@@ -3,31 +3,39 @@ FROM quay.io/hummingbird-community/bootc-os:latest
 # Install packages for headless ARM64 Raspberry Pi system
 # Note: targeting ARM64 architecture for Raspberry Pi 4/5
 # Base: Fedora Hummingbird (zero-CVE target, ARK kernel, read-only root)
+# Hummingbird pre-includes: chrony, podman, curl, python3, tar, gzip, NetworkManager
 
-# Add Tailscale repository
-RUN curl -fsSL https://pkgs.tailscale.com/stable/fedora/tailscale.repo -o /etc/yum.repos.d/tailscale.repo
+# Add Fedora Rawhide repo for packages not in Hummingbird's curated set
+RUN cat > /etc/yum.repos.d/fedora-rawhide.repo << 'REPO'
+[fedora-rawhide]
+name=Fedora - Rawhide
+metalink=https://mirrors.fedoraproject.org/metalink?repo=rawhide&arch=$basearch
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-rawhide-primary
+skip_if_unavailable=False
+REPO
 
-# Install essential packages for headless operation
+# WiFi support + iptables-nft (for Tailscale dependency) + vim
 RUN dnf install -y \
-    chrony \
-    podman \
-    tailscale \
-    curl \
-    jq \
+    --disablerepo='*' --enablerepo='fedora-rawhide' \
     NetworkManager-wifi \
     wpa_supplicant \
     iw \
-    python3 \
-    python3-pip \
-    git \
-    nano \
-    vim \
-    htop \
-    rsync \
-    tar \
-    gzip \
-    unzip && \
+    iptables-nft \
+    vim-minimal && \
     dnf clean all
+
+# Remove Fedora repo — all further installs from Hummingbird only
+RUN rm -f /etc/yum.repos.d/fedora-rawhide.repo
+
+# Add Tailscale repository and install (iptables-nft satisfies dependency)
+RUN curl -fsSL https://pkgs.tailscale.com/stable/fedora/tailscale.repo \
+    -o /etc/yum.repos.d/tailscale.repo
+RUN dnf install -y tailscale && dnf clean all
+
+# Supplementary tools from Hummingbird repos
+RUN dnf install -y jq git unzip && dnf clean all
 
 # Create directories for node-exporter monitoring
 RUN mkdir -p /etc/containers/systemd

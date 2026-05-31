@@ -23,6 +23,8 @@ This project creates a bootc-based headless system that automatically configures
 - **Node Exporter Monitoring**: Built-in system metrics collection via Node Exporter
 - **Network Management**: NetworkManager for robust network handling
 - **Container Support**: Podman for containerized workloads
+- **Zero-CVE Base**: Fedora Hummingbird foundation with ARK kernel and hardened packages
+- **Minimal Image**: Essential tools only; additional packages installable at runtime via dnf
 
 ## Hardware Requirements
 
