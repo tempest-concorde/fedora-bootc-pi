@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.0.1...v1.1.0) (2026-05-31)
+
+
+### Features
+
+* rebase fedora-bootc-pi onto Fedora Hummingbird ([#4](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/4)) ([902f035](https://github.com/tempest-concorde/fedora-bootc-rpi5/commit/902f035912d86920fba52bbeb46edfde7687f224))
+
 ## [1.0.1](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.0.0...v1.0.1) (2025-09-11)
 
 
