@@ -1,6 +1,6 @@
 # fedora-bootc-pi
 
-Headless Fedora bootc system optimized for ARM64 Raspberry Pi 4/5 with Tailscale VPN and WiFi management, based on Fedora Hummingbird.
+Headless Fedora bootc system optimized for ARM64 Raspberry Pi 4/5 with Tailscale VPN, WiFi management, and cryptographically signed container updates, based on Fedora Hummingbird.
 
 ## Overview
 
