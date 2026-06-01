@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.2.2...v1.2.3) (2026-06-01)
+
+
+### Bug Fixes
+
+* use compat-auth and registry digest for cosign signing ([#10](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/10)) ([c5825a8](https://github.com/tempest-concorde/fedora-bootc-rpi5/commit/c5825a896ecdbe9aa6dd849c00bdf2f21f6e2f6f))
+
 ## [1.2.2](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.2.1...v1.2.2) (2026-06-01)
 
 
