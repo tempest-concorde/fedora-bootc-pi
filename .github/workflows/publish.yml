@@ -1,9 +1,12 @@
-name: Publish on tag
+name: Publish on release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Build and release on main"]
+    types:
+      - completed
+    branches:
+      - main
 
 env:
   IMAGE_REGISTRY: ghcr.io
@@ -12,6 +15,8 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-24.04-arm
+    # Only run if the upstream workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     container:
       image: registry.access.redhat.com/ubi9/ubi
       options: --privileged
@@ -26,15 +31,41 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    - name: Extract version from tag
+    - name: Check for new tag and extract version
       id: version
       run: |
-        VERSION="${GITHUB_REF_NAME#v}"
+        # Find the most recent tag
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+        if [ -z "$LATEST_TAG" ]; then
+          echo "No tags found, skipping publish"
+          echo "SKIP_PUBLISH=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Check if this tag was created recently (within last 2 minutes)
+        TAG_DATE=$(git log -1 --format=%ct "$LATEST_TAG")
+        CURRENT_TIME=$(date +%s)
+        TIME_DIFF=$((CURRENT_TIME - TAG_DATE))
+
+        if [ $TIME_DIFF -gt 120 ]; then
+          echo "Latest tag $LATEST_TAG is too old ($TIME_DIFF seconds), skipping publish"
+          echo "SKIP_PUBLISH=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Extract version and checkout the tag
+        git checkout "$LATEST_TAG"
+        VERSION="${LATEST_TAG#v}"
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        echo "Tag version: $VERSION"
+        echo "SKIP_PUBLISH=false" >> $GITHUB_OUTPUT
+        echo "Publishing tag: $LATEST_TAG (version: $VERSION)"
 
     - name: Workaround open podman-login action issue
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       env:
         auth: '{ "auths": {} }'
       run: |
@@ -42,6 +73,7 @@ jobs:
         echo $auth > $HOME/.docker/config.json
 
     - name: Log in to GHCR
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       uses: redhat-actions/podman-login@v1
       with:
         username: ${{ github.actor }}
@@ -50,6 +82,7 @@ jobs:
         auth_file_path: /run/containers/0/auth.json
 
     - name: Build container image
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
@@ -60,6 +93,7 @@ jobs:
           ./Containerfile
 
     - name: Push to GHCR
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       uses: redhat-actions/push-to-registry@v2
       with:
         image: ${{ env.IMAGE_NAME }}
@@ -67,9 +101,11 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
 
     - name: Install Cosign
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       uses: sigstore/cosign-installer@v3.7.0
 
     - name: Get image digest
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       id: digest
       run: |
         DIGEST=$(podman image inspect --format '{{ .Digest }}' ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }})
@@ -77,6 +113,7 @@ jobs:
         echo "Image digest: $DIGEST"
 
     - name: Sign image with cosign
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       env:
         COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -91,6 +128,7 @@ jobs:
           ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.digest.outputs.IMAGE_DIGEST }}
 
     - name: Verify signature
+      if: steps.version.outputs.SKIP_PUBLISH != 'true'
       env:
         COSIGN_PUBLIC_KEY: ${{ vars.COSIGN_PUBLIC_KEY }}
       run: |
