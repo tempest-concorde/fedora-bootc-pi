@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.1.0...v1.2.0) (2026-06-01)
+
+
+### Features
+
+* migrate to GHCR, key-based cosign signing, and update stream lockdown ([#5](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/5)) ([f0cab49](https://github.com/tempest-concorde/fedora-bootc-rpi5/commit/f0cab49eea2398853dc83efd8f55d5534894eac8))
+
 # [1.1.0](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.0.1...v1.1.0) (2026-05-31)
 
 
