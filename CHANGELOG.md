@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.2.0...v1.2.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* add signed container updates to README description ([#7](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/7)) ([de57674](https://github.com/tempest-concorde/fedora-bootc-rpi5/commit/de57674a4b3cb425190a387b0013b645fabba9ad)), closes [#5](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/5)
+
 # [1.2.0](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.1.0...v1.2.0) (2026-06-01)
 
 
