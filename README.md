@@ -200,3 +200,4 @@ The following secrets need to be configured in your GitHub repository:
 6. **Security**: SSH key-based authentication only, no password access
 7. **Storage**: Optimized for SD card usage patterns
 8. **Power**: Designed for 24/7 operation with proper power supply
+
