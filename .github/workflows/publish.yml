@@ -32,7 +32,7 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME#v}"
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        echo "Tag version: $VERSION"
+        echo "Publishing version: $VERSION"
 
     - name: Workaround open podman-login action issue
       env:
