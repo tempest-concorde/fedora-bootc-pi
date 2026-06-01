@@ -34,20 +34,12 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         echo "Publishing version: $VERSION"
 
-    - name: Workaround open podman-login action issue
-      env:
-        auth: '{ "auths": {} }'
-      run: |
-        mkdir -p $HOME/.docker
-        echo $auth > $HOME/.docker/config.json
-
     - name: Log in to GHCR
-      uses: redhat-actions/podman-login@v1
-      with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        auth_file_path: /run/containers/0/auth.json
+      run: |
+        podman login ${{ env.IMAGE_REGISTRY }} \
+          -u ${{ github.actor }} \
+          -p "${{ secrets.GITHUB_TOKEN }}" \
+          --compat-auth-file $HOME/.docker/config.json
 
     - name: Build container image
       id: build-image
@@ -69,10 +61,12 @@ jobs:
     - name: Install Cosign
       uses: sigstore/cosign-installer@v3.7.0
 
-    - name: Get image digest
+    - name: Get image digest from registry
       id: digest
       run: |
-        DIGEST=$(podman image inspect --format '{{ .Digest }}' ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }})
+        DIGEST=$(skopeo inspect --authfile $HOME/.docker/config.json \
+          docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }} \
+          --format '{{ .Digest }}')
         echo "IMAGE_DIGEST=$DIGEST" >> $GITHUB_OUTPUT
         echo "Image digest: $DIGEST"
 
