@@ -1,8 +1,8 @@
 SHELL := /bin/bash
 
 # Default image registry and name
-REGISTRY ?= quay.io/tempest-concorde
-IMAGE_NAME ?= fedora-bootc-rpi5
+REGISTRY ?= ghcr.io/tempest-concorde
+IMAGE_NAME ?= fedora-bootc-pi
 TAG ?= latest
 FULL_IMAGE := $(REGISTRY)/$(IMAGE_NAME):$(TAG)
 

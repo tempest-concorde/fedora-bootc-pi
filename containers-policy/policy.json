@@ -1,0 +1,20 @@
+{
+  "default": [
+    {
+      "type": "sigstoreSigned",
+      "keyPath": "/usr/share/pki/sigstore/cosign.pub",
+      "signedIdentity": {
+        "type": "matchRepository"
+      }
+    }
+  ],
+  "transports": {
+    "docker": {
+      "docker.io/prom/node-exporter": [
+        {
+          "type": "insecureAcceptAnything"
+        }
+      ]
+    }
+  }
+}

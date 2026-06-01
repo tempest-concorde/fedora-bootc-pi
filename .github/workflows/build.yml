@@ -6,9 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY_USER: rh-ee-chbutler
-  IMAGE_REGISTRY: quay.io
-  IMAGE: flightradar-bootc-pi
+  IMAGE_REGISTRY: ghcr.io
+  IMAGE_NAME: tempest-concorde/fedora-bootc-pi
 
 jobs:
   build-and-test:
@@ -38,36 +37,29 @@ jobs:
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: "${{ env.IMAGE }}"
+        image: ${{ env.IMAGE_NAME }}
         tags: test ${{ github.sha }}
         platforms: linux/arm64
         containerfiles: |
           ./Containerfile
 
-
     - name: Test container functionality
       run: |
-        # Test image was built successfully
-        echo "Testing built image: ${{ env.IMAGE }}:test"
-        podman image inspect ${{ env.IMAGE }}:test --format '{{.Id}}'
-        
-        
-        # Verify the image contains expected files using buildah mount (avoids nested containers)
-        CONTAINER=$(buildah from ${{ env.IMAGE }}:test)
+        IMAGE_NAME="${{ env.IMAGE_NAME }}:${{ github.sha }}"
+        echo "Testing built image: $IMAGE_NAME"
+        podman image inspect "$IMAGE_NAME" --format '{{.Id}}'
+
+        CONTAINER=$(buildah from "$IMAGE_NAME")
         MOUNT=$(buildah mount $CONTAINER)
-        
-        # Test that scripts exist and are executable
+
         test -x "$MOUNT/usr/local/bin/wifi-setup.sh"
         test -x "$MOUNT/usr/local/bin/tailscale-setup.sh"
-        
-        # Test that node-exporter config exists
         test -f "$MOUNT/etc/containers/systemd/node-exporter.container"
-        
-        # Test that required packages are installed (check RPM database)
+        test -f "$MOUNT/etc/containers/policy.json"
+        test -f "$MOUNT/usr/share/pki/sigstore/cosign.pub"
         chroot "$MOUNT" rpm -q tailscale NetworkManager-wifi podman >/dev/null
-        
-        # Clean up
+
         buildah unmount $CONTAINER
         buildah rm $CONTAINER
-        
-        echo "✅ All container functionality tests passed"
+
+        echo "All container functionality tests passed"
