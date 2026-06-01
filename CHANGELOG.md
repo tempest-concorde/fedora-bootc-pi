@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.2.1...v1.2.2) (2026-06-01)
+
+
+### Bug Fixes
+
+* use release bot app token for semantic-release ([#9](https://github.com/tempest-concorde/fedora-bootc-rpi5/issues/9)) ([e352e71](https://github.com/tempest-concorde/fedora-bootc-rpi5/commit/e352e71145fc9bddc82ac84c66ec9aa43d27bef7))
+
 ## [1.2.1](https://github.com/tempest-concorde/fedora-bootc-rpi5/compare/v1.2.0...v1.2.1) (2026-06-01)
 
 
