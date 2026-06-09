@@ -50,3 +50,4 @@ pip-delete-this-directory.txt
 
 # Container runtime
 .container-*
+.claude/
