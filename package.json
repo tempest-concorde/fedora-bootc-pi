@@ -1,36 +1,17 @@
 {
-  "name": "fedora-bootc-rpi5",
+  "name": "fedora-bootc-pi",
   "version": "1.2.3",
-  "description": "Headless Fedora bootc system for Raspberry Pi 5 with Tailscale and WiFi management",
+  "description": "Headless Fedora bootc platform layer for Raspberry Pi 4/5",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tempest-concorde/fedora-bootc-rpi5.git"
+    "url": "https://github.com/tempest-concorde/fedora-bootc-pi.git"
   },
-  "keywords": [
-    "fedora",
-    "bootc",
-    "raspberry-pi",
-    "rpi5",
-    "arm64",
-    "tailscale",
-    "wifi",
-    "headless",
-    "monitoring"
-  ],
   "author": "tempest-concorde",
   "license": "Apache-2.0",
   "devDependencies": {
     "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^18.0.0",
-    "semantic-release": "^22.0.0",
-    "@semantic-release/changelog": "^6.0.0",
-    "@semantic-release/git": "^10.0.0"
-  },
-  "scripts": {
-    "lint": "commitlint --from=HEAD~1",
-    "build": "make container",
-    "test": "make test-local",
-    "release": "make release"
+    "semantic-release": "^22.0.0"
   },
   "release": {
     "branches": [
@@ -39,23 +20,6 @@
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "CHANGELOG.md",
-            "package.json"
-          ],
-          "message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}"
-        }
-      ],
       "@semantic-release/github"
     ]
   }
