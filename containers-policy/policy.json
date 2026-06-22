@@ -1,18 +1,18 @@
 {
   "default": [
     {
-      "type": "sigstoreSigned",
-      "keyPath": "/usr/share/pki/sigstore/cosign.pub",
-      "signedIdentity": {
-        "type": "matchRepository"
-      }
+      "type": "insecureAcceptAnything"
     }
   ],
   "transports": {
     "docker": {
-      "docker.io/prom/node-exporter": [
+      "ghcr.io/tempest-concorde": [
         {
-          "type": "insecureAcceptAnything"
+          "type": "sigstoreSigned",
+          "keyPath": "/usr/share/pki/sigstore/cosign.pub",
+          "signedIdentity": {
+            "type": "matchRepository"
+          }
         }
       ]
     }
