@@ -1,4 +1,4 @@
-FROM quay.io/fedora/fedora-bootc:42
+FROM quay.io/fedora/fedora-bootc:44
 
 # Platform layer for headless ARM64 Raspberry Pi 4/5
 # Provides: WiFi, Tailscale VPN, node-exporter, SSH
