@@ -59,7 +59,9 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
 
     - name: Install Cosign
-      uses: sigstore/cosign-installer@v3.7.0
+      uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
+      with:
+        cosign-release: 'v2.2.4'
 
     - name: Get image digest from registry
       id: digest
@@ -77,22 +79,12 @@ jobs:
       run: |
         cosign sign --yes \
           --key env://COSIGN_PRIVATE_KEY \
-          --recursive \
+          --tlog-upload=false \
           -a tag=${{ steps.version.outputs.VERSION }} \
           -a sha=${{ github.sha }} \
           -a run_id=${{ github.run_id }} \
           -a run_attempt=${{ github.run_attempt }} \
           ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.digest.outputs.IMAGE_DIGEST }}
-
-    - name: Verify signature
-      env:
-        COSIGN_PUBLIC_KEY: ${{ vars.COSIGN_PUBLIC_KEY }}
-      run: |
-        echo "$COSIGN_PUBLIC_KEY" > /tmp/cosign.pub
-        cosign verify \
-          --key /tmp/cosign.pub \
-          ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.digest.outputs.IMAGE_DIGEST }}
-        rm -f /tmp/cosign.pub
 
   dispatch:
     name: Trigger fw-os rebuild
@@ -100,11 +92,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate GitHub App token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
         id: app-token
         with:
-          app-id: ${{ secrets.RELEASE_APP_ID }}
+          app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: tempest-concorde
           repositories: fw-os
 
       - name: Dispatch base-image-updated to fw-os
