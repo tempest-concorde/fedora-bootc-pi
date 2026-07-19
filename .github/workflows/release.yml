@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  schedule:
+    # Weekly Monday 6:07am UTC — rebuild with latest RPMs from Fedora base
+    # Offset from :00 to reduce GitHub Actions queue delays
+    - cron: '7 6 * * 1'
+  workflow_dispatch:
 
 env:
   IMAGE_REGISTRY: ghcr.io
