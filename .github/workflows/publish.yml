@@ -25,7 +25,7 @@ jobs:
       run: dnf -y install podman buildah skopeo make wget git
 
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Extract version from tag
       id: version
@@ -52,7 +52,7 @@ jobs:
           ./Containerfile
 
     - name: Push to GHCR
-      uses: redhat-actions/push-to-registry@v2
+      uses: redhat-actions/push-to-registry@v3
       with:
         image: ${{ env.IMAGE_NAME }}
         tags: latest ${{ steps.version.outputs.VERSION }} ${{ github.sha }}
