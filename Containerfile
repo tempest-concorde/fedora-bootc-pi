@@ -1,7 +1,7 @@
-# Fedora 44 bootc base — pinned to SHA256 digest of the floating :44 stream tag
+# Fedora 45 bootc base — pinned to SHA256 digest of the floating :45 stream tag
 # (multi-arch manifest list digest). Dependabot opens a PR when Fedora rebuilds
-# the :44 tag with a new digest.
-FROM quay.io/fedora/fedora-bootc:44@sha256:bc8170813188572139a6d01a3c03ab6b95c2c07152d4d313be4941c0870d8a6f
+# the :45 tag with a new digest.
+FROM quay.io/fedora/fedora-bootc:45@sha256:b1ef16e71b4eb06f8662801795e518fe16bd225aa47b3da7bcef15bca794e2a8
 
 # Platform layer for headless ARM64 Raspberry Pi 4/5
 # Provides: WiFi, Tailscale VPN, node-exporter, SSH
