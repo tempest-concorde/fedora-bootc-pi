@@ -1,0 +1,37 @@
+name: Resolve Base Image Digests (TEMP)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Install skopeo and jq
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq skopeo jq
+
+      - name: Resolve quay.io/fedora/fedora-bootc:44
+        run: |
+          echo "=== skopeo inspect --raw (manifest list) ==="
+          skopeo inspect --raw docker://quay.io/fedora/fedora-bootc:44 | jq .
+          echo "=== resolved digest ==="
+          skopeo inspect --format '{{.Name}} {{.Digest}}' docker://quay.io/fedora/fedora-bootc:44
+          echo "=== labels ==="
+          skopeo inspect --format '{{json .Labels}}' docker://quay.io/fedora/fedora-bootc:44 | jq .
+          echo "=== repos ==="
+          skopeo inspect --format '{{.RepoTags}}' docker://quay.io/fedora/fedora-bootc:44
+
+      - name: Resolve docker.io/prom/node-exporter
+        run: |
+          echo "=== skopeo inspect --raw (manifest list) ==="
+          skopeo inspect --raw docker://docker.io/prom/node-exporter:latest | jq .
+          echo "=== resolved digest ==="
+          skopeo inspect --format '{{.Name}} {{.Digest}}' docker://docker.io/prom/node-exporter:latest
+          echo "=== labels ==="
+          skopeo inspect --format '{{json .Labels}}' docker://docker.io/prom/node-exporter:latest | jq .
+          echo "=== last 15 tags ==="
+          skopeo list-tags docker://docker.io/prom/node-exporter | jq '.Tags[-15:]'
