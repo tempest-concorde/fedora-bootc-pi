@@ -21,6 +21,7 @@ jobs:
       id-token: write
     outputs:
       image_digest: ${{ steps.digest.outputs.IMAGE_DIGEST }}
+      version: ${{ steps.version.outputs.VERSION }}
 
     steps:
     - name: Get container tools in UBI builder
@@ -97,7 +98,7 @@ jobs:
       downstream_repo: tempest-concorde/fw-os
       event_type: base-image-updated
       client_payload: >-
-        {"version":"${{ github.ref_name }}"}
+        {"version":"${{ needs.publish.outputs.version }}","digest":"${{ needs.publish.outputs.image_digest }}","registry":"ghcr.io","image":"tempest-concorde/fedora-bootc-pi","run_url":"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}
     secrets: inherit
 
   sbom:
