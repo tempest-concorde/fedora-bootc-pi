@@ -19,6 +19,9 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    outputs:
+      image_digest: ${{ steps.digest.outputs.IMAGE_DIGEST }}
+      version: ${{ steps.version.outputs.VERSION }}
 
     steps:
     - name: Get container tools in UBI builder
@@ -90,22 +93,23 @@ jobs:
   dispatch:
     name: Trigger fw-os rebuild
     needs: publish
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate GitHub App token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
-        id: app-token
-        with:
-          app-id: ${{ vars.RELEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-          owner: tempest-concorde
-          repositories: fw-os
+    uses: tempest-concorde/fw-cicd/.github/workflows/cascade-dispatch.yml@main
+    with:
+      downstream_repo: tempest-concorde/fw-os
+      event_type: base-image-updated
+      client_payload: >-
+        {"version":"${{ needs.publish.outputs.version }}","digest":"${{ needs.publish.outputs.image_digest }}","registry":"ghcr.io","image":"tempest-concorde/fedora-bootc-pi","run_url":"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}
+    secrets: inherit
 
-      - name: Dispatch base-image-updated to fw-os
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          gh api repos/tempest-concorde/fw-os/dispatches \
-            --method POST \
-            --field event_type=base-image-updated \
-            --field 'client_payload[version]=${{ github.ref_name }}'
+  sbom:
+    name: SBOM attestation
+    needs: publish
+    uses: tempest-concorde/fw-cicd/.github/workflows/sbom-attest.yml@main
+    with:
+      registry: ghcr.io
+      image_name: tempest-concorde/fedora-bootc-pi
+      image_digest: ${{ needs.publish.outputs.image_digest }}
+      version: ${{ github.ref_name }}
+      is_release: true
+      signing_mode: key
+    secrets: inherit
