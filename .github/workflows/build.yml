@@ -62,6 +62,8 @@ jobs:
         buildah unmount $CONTAINER
         buildah rm $CONTAINER
 
+        echo "All container functionality tests passed"
+
   # fw-gsd specs/004-fedora-version-alignment (T018): constitution gate.
   # NOTE: this job WILL FAIL until tempest-concorde/fw-cicd merges
   # baseline-audit.yml to main (deliberate W4a-first wave ordering).
@@ -70,5 +72,3 @@ jobs:
     uses: tempest-concorde/fw-cicd/.github/workflows/baseline-audit.yml@main
     with:
       baseline: "46"
-
-        echo "All container functionality tests passed"
