@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to (re)publish, e.g. v4.1.0 (empty = run context ref)'
+        required: false
+        default: ''
+        type: string
 
 env:
   IMAGE_REGISTRY: ghcr.io
@@ -26,11 +33,14 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.tag || github.ref }}
 
     - name: Extract version from tag
       id: version
       run: |
-        VERSION="${GITHUB_REF_NAME#v}"
+        REF_NAME="${{ inputs.tag || github.ref_name }}"
+        VERSION="${REF_NAME#v}"
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         echo "Publishing version: $VERSION"
 
@@ -45,7 +55,7 @@ jobs:
       id: build-image
       uses: redhat-actions/buildah-build@v3
       with:
-        image: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}"
+        image: ${{ env.IMAGE_NAME }}
         tags: latest ${{ steps.version.outputs.VERSION }} ${{ github.sha }}
         platforms: linux/arm64
         containerfiles: |
