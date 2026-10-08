@@ -39,8 +39,11 @@ jobs:
           set -euo pipefail
           IMG="$(sed -n 's/^FROM \([^@]*\)@sha256:.*/\1/p' Containerfile | head -n1)"
           [ -n "${IMG}" ] || { echo "::error::no pinned FROM in Containerfile"; exit 1; }
-          DIGEST="$(skopeo inspect "docker://${IMG}" \
+          RAW="$(skopeo inspect "docker://${IMG}" \
             | python3 -c 'import json,sys; print(json.load(sys.stdin)["Digest"])')"
+          # skopeo's Digest already carries the sha256: scheme prefix; strip
+          # it since the Containerfile references @sha256:<hex>.
+          DIGEST="${RAW#sha256:}"
           echo "image=${IMG}" | tee -a "$GITHUB_OUTPUT"
           echo "digest=${DIGEST}" | tee -a "$GITHUB_OUTPUT"
 
