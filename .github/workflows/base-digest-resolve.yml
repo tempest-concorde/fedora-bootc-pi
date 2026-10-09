@@ -1,0 +1,73 @@
+name: Base Digest Resolve
+
+# Dispatch-driven digest resolver for the fedora-bootc base tag
+# (fw-gsd specs/004-fedora-version-alignment: Dependabot weekly cadence is
+# too slow for alignment waves, and quay.io digest resolution needs a
+# connected runner — same pattern as fw-os fr24-pin, specs/003 decision 7).
+#
+#
+# Params: branch to update + commit target. The workflow resolves the current
+# digest of the Containerfile's FROM base *tag*, and if it changed, commits
+# the new digest on the given branch (default main).
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to commit the digest update to'
+        required: true
+        default: main
+        type: string
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Install skopeo
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq skopeo
+
+      - name: Resolve current digest of the FROM base tag
+        id: base
+        run: |
+          set -euo pipefail
+          IMG="$(sed -n 's/^FROM \([^@]*\)@sha256:.*/\1/p' Containerfile | head -n1)"
+          [ -n "${IMG}" ] || { echo "::error::no pinned FROM in Containerfile"; exit 1; }
+          RAW="$(skopeo inspect "docker://${IMG}" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["Digest"])')"
+          # skopeo's Digest already carries the sha256: scheme prefix; strip
+          # it since the Containerfile references @sha256:<hex>.
+          DIGEST="${RAW#sha256:}"
+          echo "image=${IMG}" | tee -a "$GITHUB_OUTPUT"
+          echo "digest=${DIGEST}" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Commit digest update if changed
+        env:
+          NEW_DIGEST: ${{ steps.base.outputs.digest }}
+        run: |
+          set -euo pipefail
+          OLD="$(sed -n 's/^FROM .*@sha256://p' Containerfile | head -n1 || true)"
+          if [ "${OLD}" = "${NEW_DIGEST}" ]; then
+            echo "Digest already current (${NEW_DIGEST}) — nothing to do."
+            exit 0
+          fi
+          echo "Updating ${OLD:-<none>} -> ${NEW_DIGEST}"
+          sed -i "s|^FROM \(\S*\)@sha256:[0-9a-f]\{64\}|FROM \1@sha256:${NEW_DIGEST}|g" Containerfile
+          grep '^FROM ' Containerfile
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Containerfile
+          git commit -m "chore(deps): pin fedora/fedora-bootc base digest to ${NEW_DIGEST:0:12}
+          "
+          git push
+
+      - name: Commit
+        if: failure()
+        run: echo "::error::failed to resolve/push digest"
+  # (debug note retained in-file: error lines stay visible in step output)
